@@ -1,4 +1,4 @@
-module github.com/pokt-network/poktd
+module github.com/pokt-network/pocket-runner
 
 go 1.13
 
