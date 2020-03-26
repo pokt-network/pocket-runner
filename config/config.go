@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"net/url"
@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	rootName    = "upgrade_manager"
+	rootName    = "runner"
 	genesisDir  = "genesis"
 	upgradesDir = "upgrades"
 	currentLink = "current"
@@ -84,7 +84,7 @@ func (cfg *Config) CurrentBin() (string, error) {
 }
 
 // GetConfigFromEnv will read the environmental variables into a config
-// and then validate it is reasonable
+// and then Validate it is reasonable
 func GetConfigFromEnv() (*Config, error) {
 	cfg := &Config{
 		Home: os.Getenv("DAEMON_HOME"),
@@ -93,16 +93,16 @@ func GetConfigFromEnv() (*Config, error) {
 	if os.Getenv("DAEMON_RESTART_AFTER_UPGRADE") == "on" {
 		cfg.RestartAfterUpgrade = true
 	}
-	if err := cfg.validate(); err != nil {
+	if err := cfg.Validate(); err != nil {
 		return nil, err
 	}
 	return cfg, nil
 }
 
-// validate returns an error if this config is invalid.
+// Validate returns an error if this config is invalid.
 // it enforces Home/upgrade_manager is a valid directory and exists,
 // and that Name is set
-func (cfg *Config) validate() error {
+func (cfg *Config) Validate() error {
 	if cfg.Name == "" {
 		return errors.New("DAEMON_NAME is not set")
 	}
