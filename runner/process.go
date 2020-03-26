@@ -3,7 +3,6 @@ package runner
 import (
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/pokt-network/pocket-runner/config"
@@ -25,7 +24,7 @@ func LaunchProcess(cfg *config.Config, args []string) (bool, error) {
 
 	err = cmd.Start()
 	if err != nil {
-		return false, errors.Wrapf(err, "launching process %s %s", bin, strings.Join(args, " "))
+		return false, errors.Wrapf(err, "problem running command %s", cmd.String())
 	}
 	return false, nil
 }
