@@ -1,1 +1,5 @@
+# Avoid vendored dependencies
 vendor/
+
+# make sure no symlink is commited
+current/ 
