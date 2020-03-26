@@ -2,4 +2,4 @@
 vendor/
 
 # make sure no symlink is commited
-current 
+current
