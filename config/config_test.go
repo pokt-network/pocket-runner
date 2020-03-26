@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"path/filepath"
@@ -16,16 +16,16 @@ func TestConfigPaths(t *testing.T) {
 		"simple": {
 			cfg:           Config{Home: "/foo", Name: "myd"},
 			upgradeName:   "bar",
-			expectRoot:    "/foo/upgrade_manager",
-			expectGenesis: "/foo/upgrade_manager/genesis/bin/myd",
-			expectUpgrade: "/foo/upgrade_manager/upgrades/bar/bin/myd",
+			expectRoot:    "/foo/runner",
+			expectGenesis: "/foo/runner/genesis/bin/myd",
+			expectUpgrade: "/foo/runner/upgrades/bar/bin/myd",
 		},
 		"handle space": {
 			cfg:           Config{Home: "/longer/prefix/", Name: "yourd"},
 			upgradeName:   "some spaces",
-			expectRoot:    "/longer/prefix/upgrade_manager",
-			expectGenesis: "/longer/prefix/upgrade_manager/genesis/bin/yourd",
-			expectUpgrade: "/longer/prefix/upgrade_manager/upgrades/some%20spaces/bin/yourd",
+			expectRoot:    "/longer/prefix/runner",
+			expectGenesis: "/longer/prefix/runner/genesis/bin/yourd",
+			expectUpgrade: "/longer/prefix/runner/upgrades/some%20spaces/bin/yourd",
 		},
 	}
 
@@ -89,7 +89,7 @@ func TestValidate(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			err := tc.cfg.validate()
+			err := tc.cfg.Validate()
 			switch tc.valid {
 			case true:
 				if err != nil {

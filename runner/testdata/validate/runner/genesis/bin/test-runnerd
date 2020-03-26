@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo Genesis $@
+sleep 1
+echo 'binary is running, upgrade pending'
+sleep 2
+echo Never should be printed!!!
