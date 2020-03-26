@@ -1,7 +1,6 @@
 package runner
 
 import (
-	"bytes"
 	"os"
 	"testing"
 
@@ -14,12 +13,11 @@ func TestLaunchProcess(t *testing.T) {
 		t.Error(err)
 		t.FailNow()
 	}
-	cfg := &config.Config{Home: home, Name: "test-runnerd"}
+	cfg := &config.Config{Home: home, Name: "custom-core"}
 	defer os.RemoveAll(home)
 
-	var stdout, stderr bytes.Buffer
-	args := []string{"-blockTime", "1"} // NOTE add short block times for testing purposes
-	_, err = LaunchProcess(cfg, args, &stdout, &stderr)
+	args := []string{"start", "--blockTime", "1"} // NOTE add short block times for testing purposes
+	_, err = LaunchProcess(cfg, args)
 	if err != nil {
 		t.Error(err)
 		t.FailNow()
