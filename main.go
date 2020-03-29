@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/pokt-network/pocket-runner/config"
-	"github.com/pokt-network/pocket-runner/runner"
+	"github.com/pokt-network/pocket-runner/internal/types"
+	"github.com/pokt-network/pocket-runner/x/runner"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 }
 
 func Run(args []string) error {
-	cfg, err := config.GetConfigFromEnv()
+	cfg, err := types.GetConfigFromEnv()
 	if err != nil {
 		return err
 	}
