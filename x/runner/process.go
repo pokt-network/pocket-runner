@@ -10,10 +10,10 @@ import (
 
 // LaunchProcess runs a subprocess and returns when the subprocess exits,
 // either when it dies, or *after* a successful upgrade.
-func LaunchProcess(cfg *types.Config, args []string, stdout, stderr io.Writer, stdin io.Reader) (bool, error, *exec.Cmd) {
+func LaunchProcess(cfg *types.Config, args []string, stdout, stderr io.Writer, stdin io.Reader) (bool, error) {
 	bin, err := cfg.CurrentBin()
 	if err != nil {
-		return false, errors.Wrap(err, "error creating symlink to genesis"), nil
+		return false, errors.Wrap(err, "error creating symlink to genesis")
 	}
 	cmd := exec.Command(bin, args...)
 
@@ -24,8 +24,8 @@ func LaunchProcess(cfg *types.Config, args []string, stdout, stderr io.Writer, s
 
 	err = cmd.Start()
 	if err != nil {
-		return false, errors.Wrapf(err, "problem running command %s", cmd.String()), nil
+		return false, errors.Wrapf(err, "problem running command %s", cmd.String())
 	}
 
-	return false, nil, cmd
+	return false, nil
 }
