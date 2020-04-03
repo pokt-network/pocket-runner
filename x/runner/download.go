@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -68,14 +69,14 @@ func CompilePocketCore(cfg *types.Config, info *types.UpgradeInfo) error {
 	stdout, err := cmd.Output()
 
 	if err != nil {
-		fmt.Println(err.Error())
+		errors.Wrap(err, "Error building")
 		return err
 	}
 	fmt.Print(string(stdout))
 
 	_, err = os.Stat(cfg.UpgradeBin(info.Name))
 	if os.IsNotExist(err) {
-		return err
+		return errors.Wrapf(err, "upgrade %s not found", info.Name)
 	}
 
 	return nil
