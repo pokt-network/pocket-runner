@@ -2,8 +2,8 @@ package runner
 
 import (
 	"archive/zip"
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/pokt-network/pocket-runner/internal/types"
 	"io"
 	"net/http"
@@ -11,7 +11,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"github.com/pkg/errors"
 )
 
 const (
