@@ -37,6 +37,10 @@ func (cfg *Config) UpgradeBin(upgradeName string) string {
 	return filepath.Join(cfg.UpgradeDir(upgradeName), "bin", cfg.Name)
 }
 
+func (cfg *Config) DownloadCode(upgradeName string) string {
+	return filepath.Join(cfg.UpgradeDir(upgradeName), "code", upgradeName)
+}
+
 // UpgradeDir is the directory named upgrade
 func (cfg *Config) UpgradeDir(upgradeName string) string {
 	safeName := url.PathEscape(upgradeName)
