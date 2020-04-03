@@ -1,32 +1,31 @@
 package runner
 
 import (
-	"os"
+	"io"
 	"os/exec"
 
 	"github.com/pkg/errors"
 	"github.com/pokt-network/pocket-runner/internal/types"
 )
 
-// TODO add CheckBinary
-
 // LaunchProcess runs a subprocess and returns when the subprocess exits,
 // either when it dies, or *after* a successful upgrade.
-func LaunchProcess(cfg *types.Config, args []string) (bool, error) {
+func LaunchProcess(cfg *types.Config, args []string, stdout, stderr io.Writer, stdin io.Reader) (bool, error, *exec.Cmd) {
 	bin, err := cfg.CurrentBin()
 	if err != nil {
-		return false, errors.Wrap(err, "error creating symlink to genesis")
+		return false, errors.Wrap(err, "error creating symlink to genesis"), nil
 	}
 	cmd := exec.Command(bin, args...)
 
 	// NOTE visibility into the process
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = stdout
+	cmd.Stdin = stdin
+	cmd.Stderr = stderr
 
 	err = cmd.Start()
 	if err != nil {
-		return false, errors.Wrapf(err, "problem running command %s", cmd.String())
+		return false, errors.Wrapf(err, "problem running command %s", cmd.String()), nil
 	}
-	return false, nil
+
+	return false, nil, cmd
 }
