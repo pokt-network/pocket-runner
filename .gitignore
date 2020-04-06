@@ -3,3 +3,4 @@ vendor/
 
 # make sure no symlink is commited
 current
+data/
