@@ -10,10 +10,10 @@ import (
 	"github.com/tendermint/tendermint/types"
 )
 
-// TODO add Reset
 type EventListener struct {
 	client     client.Client
-	TxChan <-chan coreTypes.ResultEvent
+	TxChan     <-chan coreTypes.ResultEvent
+	HeaderChan <-chan coreTypes.ResultEvent
 	ctx        context.Context
 	cancel     func()
 }
@@ -21,20 +21,22 @@ type EventListener struct {
 func NewEventListener() *EventListener {
 	tmClient := TMClient()
 	ctx, cancel := context.WithCancel(context.Background())
-	txChan := subscribeToTx(tmClient, &ctx)
+	txChan := subscribeToEvent(tmClient, &ctx, types.EventTx)
+	headerChan := subscribeToEvent(tmClient, &ctx, types.EventNewBlockHeader)
 	return &EventListener{
 		client:     tmClient,
 		ctx:        ctx,
-		TxChan: txChan,
+		TxChan:     txChan,
+		HeaderChan: headerChan,
 		cancel:     cancel,
 	}
 }
 
-func subscribeToTx(client client.Client, ctx *context.Context) <-chan coreTypes.ResultEvent {
+func subscribeToEvent(client client.Client, ctx *context.Context, evt string) <-chan coreTypes.ResultEvent {
 	if !client.IsRunning() {
 		_ = client.Start()
 	}
-	txChan, err := client.Subscribe(*ctx, "helpers", types.QueryForEvent(types.EventTx).String())
+	txChan, err := client.Subscribe(*ctx, "helpers", types.QueryForEvent(evt).String())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +60,7 @@ func (el *EventListener) Stop() {
 	}
 	el.cancel()
 }
-func (el *EventListener) Reset() *EventListener{
+func (el *EventListener) Reset() *EventListener {
 	el.Stop()
 	return NewEventListener()
 }
