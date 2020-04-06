@@ -19,6 +19,7 @@ func TestUpgrade(t *testing.T) {
 	cfg := &types.Config{Home: home, Name: "test-runnerd"}
 
 	currentBin, err := cfg.CurrentBin()
+	t.Log(currentBin)
 	if err != nil {
 		t.Error(err)
 		t.FailNow()
@@ -44,6 +45,8 @@ func TestUpgrade(t *testing.T) {
 			t.Error(err)
 			t.FailNow()
 		}
+		t.Log(currentBin)
+		t.Log(upgradeBin)
 
 		if upgradeBin != currentBin {
 			t.Error(err)

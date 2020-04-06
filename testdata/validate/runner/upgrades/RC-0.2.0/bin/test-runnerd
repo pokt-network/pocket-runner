@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo Genesis $@
+sleep 1
+sleep 20
+echo 'shoul have been killed?'

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo Genesis $@
+sleep 10
+echo 'binary is running, upgrade pending'
+sleep 20
