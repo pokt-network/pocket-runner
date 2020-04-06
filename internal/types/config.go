@@ -19,6 +19,7 @@ const (
 type Config struct {
 	Home                string
 	Name                string
+	AllowDownload       bool
 	RestartAfterUpgrade bool
 }
 
@@ -93,6 +94,9 @@ func GetConfigFromEnv() (*Config, error) {
 	cfg := &Config{
 		Home: os.Getenv("DAEMON_HOME"),
 		Name: os.Getenv("DAEMON_NAME"),
+	}
+	if os.Getenv("DAEMON_ALLOW_DOWNLOAD") == "on" {
+		cfg.AllowDownload = true
 	}
 	if os.Getenv("DAEMON_RESTART_AFTER_UPGRADE") == "on" {
 		cfg.RestartAfterUpgrade = true
