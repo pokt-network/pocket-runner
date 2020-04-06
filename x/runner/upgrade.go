@@ -5,7 +5,7 @@ import (
 	"github.com/pokt-network/pocket-runner/internal/types"
 )
 
-// DoUpgrade will be called after the log message has been parsed and the process has terminated.
+// Upgrade will be called after the log message has been parsed and the process has terminated.
 // We can now make any changes to the underlying directory without interferance and leave it
 // in a state, so we can make a proper restart
 func Upgrade(cfg *types.Config, info *types.UpgradeInfo) error {

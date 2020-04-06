@@ -19,8 +19,12 @@ func TestLaunchProcess(t *testing.T) {
 	var stdout, stderr, stdin bytes.Buffer
 
 	args := []string{"start", "--blockTime", "1"} // NOTE add short block times for testing purposes
-	_, err = LaunchProcess(cfg, args, &stdout, &stderr, &stdin)
+	cmd, err := LaunchProcess(cfg, args, &stdout, &stderr, &stdin)
 	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+	if err := cmd.Process.Kill(); err != nil {
 		t.Error(err)
 		t.FailNow()
 	}
