@@ -176,10 +176,6 @@ func NewInMemoryTendermintNode(t *testing.T, genesisState []byte) (tendermintNod
 	}
 	return
 }
-func TestNewInMemory(t *testing.T) {
-	_, _, cleanup := NewInMemoryTendermintNode(t, oneValTwoNodeGenesisState())
-	defer cleanup()
-}
 
 type memoryPCApp struct {
 	*bam.BaseApp
