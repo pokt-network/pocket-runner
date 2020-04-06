@@ -39,7 +39,9 @@ func Run(args []string) {
 
 					if err := types.CheckBinary(cfg.UpgradeBin(upgrade.Name)); err != nil {
 						if cfg.AllowDownload {
-							// download
+							if er := runner.DownloadBinary(cfg, upgrade); er != nil {
+								errs <- er
+							}
 						} else {
 							errs <- err
 						}
