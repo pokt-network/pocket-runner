@@ -110,7 +110,7 @@ func WaitForBlockHeight(ctx context.Context, cfg *types.Config, args []string, c
 	}
 }
 
-// WaitForUpgrade listens transactions and filters upgrades, passess them to the upgrade cahnnel
+// WaitForUpgrade listens transactions and filters upgrades, passess them to the upgrade channel
 func WaitForUpgrade(ctx context.Context, cfg *types.Config, listener *runner.EventListener, upgrades chan *types.UpgradeInfo, errors chan error) {
 	for {
 		upgrade := &types.UpgradeInfo{}
