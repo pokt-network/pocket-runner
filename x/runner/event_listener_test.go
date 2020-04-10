@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/pokt-network/pocket-runner/internal/types"
 	sdk "github.com/pokt-network/posmint/types"
 	"github.com/pokt-network/posmint/x/gov"
 	govTypes "github.com/pokt-network/posmint/x/gov/types"
@@ -27,10 +28,11 @@ func TestEventListener(t *testing.T) {
 	memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 	var tx *sdk.TxResponse
 	var eventListener *EventListener
+	cfg := &types.Config{Home: "", Name: "test-runnerd", Port: "36657"}
 	select {
 	case <-evtChan:
 		memCli, stopCli, evtChan = subscribeTo(t, tmTypes.EventNewBlockHeader)
-		eventListener = NewEventListener()
+		eventListener = NewEventListener(cfg)
 		tx, err = gov.UpgradeTx(memCodec(), memCli, kb, cb.GetAddress(), govTypes.Upgrade{
 			Height:  2,
 			Version: version,

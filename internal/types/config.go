@@ -15,11 +15,13 @@ const (
 	currentLink = "current"
 )
 
+const defaultPort = "26657"
 // Config is the information passed in to control the daemon
 type Config struct {
 	Home                string
 	Name                string
 	AllowDownload       bool
+	Port string
 	RestartAfterUpgrade bool
 }
 
@@ -87,6 +89,9 @@ func (cfg *Config) CurrentBin() (string, error) {
 	dest = filepath.Join(dest, "bin", cfg.Name)
 	return dest, nil
 }
+func (cfg *Config)GetPort() string {
+	return cfg.Port
+}
 
 // GetConfigFromEnv will read the environmental variables into a config
 // and then Validate it is reasonable
@@ -94,6 +99,10 @@ func GetConfigFromEnv() (*Config, error) {
 	cfg := &Config{
 		Home: os.Getenv("DAEMON_HOME"),
 		Name: os.Getenv("DAEMON_NAME"),
+		Port: defaultPort,
+	}
+	if port := os.Getenv("TM_RPC_PORT"); port != "" {
+		cfg.Port = port
 	}
 	if os.Getenv("DAEMON_ALLOW_DOWNLOAD") == "on" {
 		cfg.AllowDownload = true

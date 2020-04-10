@@ -54,15 +54,14 @@ import (
 )
 
 const (
-	dummyChainsHash   = "36f028580bb02cc8272a9a020f4200e346e276ae664e45ee80745574e2f5ab80"
-	appName           = "pocket-core"
-	AppVersion        = "RC-0.1.0"
-	defaultListenAddr = "tcp://0.0.0.0:"
-	dummyChainsURL    = "https://foo.bar:8080"
-	defaultNodeKey    = "node_key.json"
-	dummyServiceURL   = "0.0.0.0:8081"
-	defaultValKey     = "priv_val_key.json"
-	defaultValState   = "priv_val_state.json"
+	dummyChainsHash = "36f028580bb02cc8272a9a020f4200e346e276ae664e45ee80745574e2f5ab80"
+	appName         = "pocket-core"
+	AppVersion      = "RC-0.1.0"
+	dummyChainsURL  = "https://foo.bar:8080"
+	defaultNodeKey  = "node_key.json"
+	dummyServiceURL = "0.0.0.0:8081"
+	defaultValKey   = "priv_val_key.json"
+	defaultValState = "priv_val_state.json"
 )
 
 var (

@@ -28,7 +28,7 @@ func TestRun(t *testing.T) {
 		t.Error(err)
 		t.FailNow()
 	}
-	cfg := &types.Config{Home: home, Name: "test-runnerd"}
+	cfg := &types.Config{Home: home, Name: "test-runnerd", Port: "36657"}
 	defer os.RemoveAll(home)
 	const version = "RC-0.2.0"
 	var stdout, stderr, stdin bytes.Buffer
@@ -46,7 +46,7 @@ func TestRun(t *testing.T) {
 
 	memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 
-	listener := runner.NewEventListener()
+	listener := runner.NewEventListener(cfg)
 	go WaitForUpgrade(ctx, cfg, listener, upgrades, errs)
 	go WaitForBlockHeight(ctx, cfg, args, cmd, listener, upgrades, complete, errs)
 
@@ -125,7 +125,7 @@ func TestWaitForUpgrade(t *testing.T) {
 		t.Error(err)
 		t.FailNow()
 	}
-	cfg := &types.Config{Home: home, Name: "test-runnerd"}
+	cfg := &types.Config{Home: home, Name: "test-runnerd", Port:"36657"}
 	defer os.RemoveAll(home)
 	const version = "RC-0.2.0"
 
@@ -134,7 +134,7 @@ func TestWaitForUpgrade(t *testing.T) {
 
 	memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 
-	listener := runner.NewEventListener()
+	listener := runner.NewEventListener(cfg)
 	go WaitForUpgrade(ctx, cfg, listener, upgrades, errs)
 	go func() {
 		for {

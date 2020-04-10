@@ -2,14 +2,17 @@ package runner
 
 import (
 	"context"
+	"fmt"
 	"log"
 
-	tmCfg "github.com/tendermint/tendermint/config"
+	// tmCfg "github.com/tendermint/tendermint/config"
+	"github.com/pokt-network/pocket-runner/internal/types"
 	"github.com/tendermint/tendermint/rpc/client"
 	coreTypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
+	tmTypes"github.com/tendermint/tendermint/types"
 )
 
+const defaultListenAddr = "tcp://0.0.0.0:"
 type EventListener struct {
 	client     client.Client
 	TxChan     <-chan coreTypes.ResultEvent
@@ -18,11 +21,11 @@ type EventListener struct {
 	cancel     func()
 }
 
-func NewEventListener() *EventListener {
-	tmClient := TMClient()
+func NewEventListener(cfg *types.Config) *EventListener {
+	tmClient := TMClient(cfg.GetPort())
 	ctx, cancel := context.WithCancel(context.Background())
-	txChan := subscribeToEvent(tmClient, &ctx, types.EventTx)
-	headerChan := subscribeToEvent(tmClient, &ctx, types.EventNewBlockHeader)
+	txChan := subscribeToEvent(tmClient, ctx, tmTypes.EventTx)
+	headerChan := subscribeToEvent(tmClient, ctx, tmTypes.EventNewBlockHeader)
 	return &EventListener{
 		client:     tmClient,
 		ctx:        ctx,
@@ -32,19 +35,21 @@ func NewEventListener() *EventListener {
 	}
 }
 
-func subscribeToEvent(client client.Client, ctx *context.Context, evt string) <-chan coreTypes.ResultEvent {
+func subscribeToEvent(client client.Client, ctx context.Context, evt string) <-chan coreTypes.ResultEvent {
 	if !client.IsRunning() {
 		_ = client.Start()
 	}
-	txChan, err := client.Subscribe(*ctx, "helpers", types.QueryForEvent(evt).String())
+	txChan, err := client.Subscribe(ctx, "helpers", tmTypes.QueryForEvent(evt).String())
 	if err != nil {
 		log.Fatal(err)
 	}
 	return txChan
 }
 
-func TMClient() client.Client {
-	client := client.NewHTTP(tmCfg.TestConfig().RPC.ListenAddress, "/websocket")
+func TMClient(port string) client.Client {
+	address := fmt.Sprintf("%s%s", defaultListenAddr, port)
+	fmt.Printf("opening client to %s\n", address)
+	client := client.NewHTTP(address, "/websocket")
 	return client
 }
 
@@ -60,7 +65,7 @@ func (el *EventListener) Stop() {
 	}
 	el.cancel()
 }
-func (el *EventListener) Reset() *EventListener {
+func (el *EventListener) Reset(cfg *types.Config) *EventListener {
 	el.Stop()
-	return NewEventListener()
+	return NewEventListener(cfg)
 }
