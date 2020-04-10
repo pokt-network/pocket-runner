@@ -31,7 +31,7 @@ func Run(args []string) {
 
 	errors := make(chan error)
 	upgrades := make(chan *types.UpgradeInfo)
-	completed := make(chan string)
+	commands := make(chan *exec.Cmd)
 	var tmListener = runner.NewEventListener(cfg)
 	ctx, cancel := context.WithCancel(context.Background())
 	log.Println("starting listeners")
@@ -44,15 +44,25 @@ func Run(args []string) {
 		os.Kill,
 		os.Interrupt)
 
-	go WaitForUpgrade(ctx, cfg, tmListener, upgrades, errors)
-	go WaitForBlockHeight(ctx, cfg, args, cmd, tmListener, upgrades, completed, errors)
+	fanJobs := func(ctx context.Context, cfg *types.Config, args []string, cmd *exec.Cmd, listener *runner.EventListener, upgrades chan *types.UpgradeInfo, commands chan *exec.Cmd, errors chan error) {
+		go WaitForUpgrade(ctx, cfg, tmListener, upgrades, errors)
+		go WaitForBlockHeight(ctx, cfg, args, cmd, tmListener, upgrades, commands, errors)
+	}
 
 	go func() {
-		log.Println("complete upgrades routine starting!")
+		fanJobs(ctx, cfg, args, cmd, tmListener, upgrades, commands, errors)
 		for {
 			select {
-			case upgradeFufilled := <-completed:
-				log.Printf("Upgrade to %s performed successfully!!\n", upgradeFufilled)
+			case currentCommand := <-commands:
+				cmd, err = runner.LaunchProcess(cfg, args, os.Stdout, os.Stderr, os.Stdin)
+				if err != nil {
+					errors <- err
+				}
+				cancel()
+				time.Sleep(time.Second * 5)
+				ctx, cancel = context.WithCancel(context.Background())
+				tmListener = tmListener.Reset(cfg)
+				fanJobs(ctx, cfg, args, currentCommand, tmListener, upgrades, commands, errors)
 			}
 		}
 	}()
@@ -76,7 +86,7 @@ func Run(args []string) {
 }
 
 // WaitForBlockHeight listens for upgrades, per upgrade checks the current block header & upgrades if neccesary.
-func WaitForBlockHeight(ctx context.Context, cfg *types.Config, args []string, cmd *exec.Cmd, listener *runner.EventListener, upgrades chan *types.UpgradeInfo, complete chan string, errors chan error) {
+func WaitForBlockHeight(ctx context.Context, cfg *types.Config, args []string, cmd *exec.Cmd, listener *runner.EventListener, upgrades chan *types.UpgradeInfo, commands chan *exec.Cmd, errors chan error) {
 	log.Printf("\n *****Listen For BlockHeight***** \n")
 	var err error
 	var currentUpgrade *types.UpgradeInfo
@@ -100,17 +110,14 @@ func WaitForBlockHeight(ctx context.Context, cfg *types.Config, args []string, c
 			if err := runner.Upgrade(cfg, upgrade); err != nil {
 				errors <- err
 			}
+			log.Printf("Upgrade to %s performed successfully!!\n", upgrade.Name)
 			cmd, err = runner.LaunchProcess(cfg, args, os.Stdout, os.Stderr, os.Stdin)
 			if err != nil {
 				errors <- err
 			}
-			complete <- upgrade.Name
-			currentUpgrade = nil // Done with this upgrade wait for the next one to go on
+			commands <- cmd
 		case <-ctx.Done():
-			if err := cmd.Process.Kill(); err != nil {
-				errors <- err
-			}
-			return // singal to kill process was sent in case it was sent inside a particular upgrade terminate execution
+			return
 		}
 	}
 }
@@ -124,7 +131,7 @@ func WaitForUpgrade(ctx context.Context, cfg *types.Config, listener *runner.Eve
 		case rawTxEvt := <-listener.TxChan:
 			log.Printf("\n *****Received a Tx***** \n")
 			if len(rawTxEvt.Events["upgrade.action"]) == 1 {
-			log.Printf("\n *****Received an Upgrade***** \n")
+				log.Printf("\n *****Received an Upgrade***** \n")
 				if err := upgrade.SetUpgrade(strings.Join(rawTxEvt.Events["upgrade.action"], "")); err != nil {
 					errors <- err
 				}

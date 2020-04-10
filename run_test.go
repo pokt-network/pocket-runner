@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"os"
+	"os/exec"
 	"sync"
 	"testing"
 
@@ -41,14 +42,14 @@ func TestRun(t *testing.T) {
 	}
 
 	upgrades := make(chan *types.UpgradeInfo)
-	complete := make(chan string)
+	commands := make(chan *exec.Cmd)
 	errs := make(chan error)
 
 	memCli, stopCli, evtChan := subscribeTo(t, tmTypes.EventNewBlock)
 
 	listener := runner.NewEventListener(cfg)
 	go WaitForUpgrade(ctx, cfg, listener, upgrades, errs)
-	go WaitForBlockHeight(ctx, cfg, args, cmd, listener, upgrades, complete, errs)
+	go WaitForBlockHeight(ctx, cfg, args, cmd, listener, upgrades, commands, errs)
 
 	// intercept any errors from Upgrades
 	go func() {
@@ -84,7 +85,7 @@ func TestRun(t *testing.T) {
 	go func(wg *sync.WaitGroup) {
 		for {
 			select {
-			case <-complete: // NOTE an upgrade was completed
+			case <-commands: // NOTE an upgrade was completed
 				upgradeBin := cfg.UpgradeBin("RC-0.2.0")
 				currentBin, err := cfg.CurrentBin()
 				t.Log(upgradeBin)
@@ -125,7 +126,7 @@ func TestWaitForUpgrade(t *testing.T) {
 		t.Error(err)
 		t.FailNow()
 	}
-	cfg := &types.Config{Home: home, Name: "test-runnerd", Port:"36657"}
+	cfg := &types.Config{Home: home, Name: "test-runnerd", Port: "36657"}
 	defer os.RemoveAll(home)
 	const version = "RC-0.2.0"
 
